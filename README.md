@@ -34,7 +34,7 @@ If you don't want to use Docker then you will need python 3.5+ installed on your
 * Open browser and type `http://0.0.0.0:5100/cowin-app`.  
 
 ### Usage for non Docker
-* Change directory to the folder where you cloned the this repository and then run `bokeh serve --port 5100 --address 0.0.0.0 --allow-websocket-origin 0.0.0.0:5100 cowin-app/` 
+* Change directory to the folder where you cloned this repository and then run `bokeh serve --port 5100 --address 0.0.0.0 --allow-websocket-origin 0.0.0.0:5100 cowin-app/` 
 * Open browser and type `http://0.0.0.0:5100/cowin-app`.  
 
 I recommend using docker option to run this dashboard. The docker option will make sure you always run latest image with latest features and bug fixes.
