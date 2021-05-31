@@ -1,10 +1,14 @@
+from bs4 import BeautifulSoup
 from functools import partial
 from threading import Thread
 import time
 from tornado import gen
 import requests, json
 from config import *
-import hashlib
+import hashlib, re
+
+with open ('cowin-app/lookup.json', 'r') as f:
+    lookup = json.load(f)
 
 session = requests.Session()
 session.headers = headers
@@ -24,8 +28,9 @@ def send_otp(mobno):
 def send_capcha():
     out = session.post("https://cdn-api.co-vin.in/api/v2/auth/getRecaptcha")
     if out.status_code == 200:
-        captcha = out.json()['captcha']                                                                                                                                                                     
-        return True, captcha
+        captcha = out.json()['captcha']
+        captcha_str = solve_captcha(captcha)
+        return True, [captcha, captcha_str]
     else:
         print("capcha downloading failed: {out.text}")
         return False, out.text
@@ -43,6 +48,24 @@ def verify_otp(mobno, otp, txnId):
     else:
         print(f"Validate otp Status code: {resp.status_code}\n{resp.text}")
         return False, resp.text
+
+def solve_captcha(svg_string):
+    try:
+        captcha_letter = {}
+        svg = BeautifulSoup(svg_string,'html.parser')
+        for d in svg.find_all('path',{'fill' : re.compile("#")}):
+            svg_path = d.get('d').upper()
+            coords = re.findall('M(\d+)',svg_path)
+            letter_seq = "".join(re.findall("([A-Z])", svg_path))
+            captcha_letter[int(coords[0])] =  lookup.get(letter_seq) #get letter from sequence
+        string = "".join(list(map(lambda l: l[-1], sorted(captcha_letter.items()))))
+        if string:
+            return string
+        else:
+            return None
+    except Exception as e:
+        print(f"unable to convert captch to string: {e}")
+        return None
 
 def get_authenticated_session(token):
     header = {'Authorization': f"Bearer {token}"}

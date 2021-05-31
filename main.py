@@ -127,9 +127,17 @@ def verify_otp_callback():
         print('otp verified successully')
         caphca_out = send_capcha()
         if caphca_out[0]:
-            print('capcha send successfullt')
-            login_stats.text = "OTP and Captcha Status: OTP verified Successfully and Pls enter capcha."
-            capcha.text = """Captcha<br>"""+f"{caphca_out[1]}"
+            captcha_svg, captcha_str = caphca_out[1]
+            print('capcha send successfully')
+            if captcha_str:
+                login_stats.text = "OTP and Captcha Status: OTP verified Successfully and Pls cross check SOLVED CAPTCHA. If Captcha is correct then press 'Submit Captcha and Book Slot'"
+                login_stats.background = "green"
+                capcha.text = """Captcha<br>"""+f"{captcha_svg}"
+                capcha_input.value = captcha_str
+            else:
+                login_stats.text = "OTP and Captcha Status: OTP verified Successfully and Pls enter capcha. Script COULDN'T SOLVE CAPTCHA"
+                login_stats.background = "red"
+                capcha.text = """Captcha<br>"""+f"{captcha_svg}"
     else:
         login_stats.text = "OTP and Captcha Status: OTP verification failed."
         notifications.text = "Status: Failed<br>" + f"response text:<br> <pre>{json.dumps(out_json, indent=4)}</pre>"
