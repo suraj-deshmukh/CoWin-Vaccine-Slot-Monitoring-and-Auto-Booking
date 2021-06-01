@@ -34,6 +34,7 @@ If you don't want to use Docker then you will need python 3.5+ installed on your
 * Open browser and type `http://localhost:5100/cowin-app`.  
 
 ### Usage for non Docker
+* Clone this repo into folder 'cowin-app'
 * Change directory to the folder where you cloned this repository and then run `bokeh serve --port 5100 cowin-app/` 
 * Open browser and type `http://localhost:5100/cowin-app`.  
 
