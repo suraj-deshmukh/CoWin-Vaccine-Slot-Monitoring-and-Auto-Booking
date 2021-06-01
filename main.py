@@ -67,7 +67,7 @@ doc = curdoc()
 user = {}
 
 name = TextInput(title="Enter Name", placeholder="Your Name")
-date = DatePicker(title="Select date", value=(datetime.today() + timedelta(0)).strftime("%d-%m-%Y"))
+date = DatePicker(title="Select date", value=datetime.today().strftime("%Y-%m-%d"))
 mobno = TextInput(title="Enter Registered Mob no", placeholder="Your Number")
 pincodes = TextInput(title="Enter Pincodes", placeholder="Pincodes in comma seperated format. like pin1,pin2")
 vaccines = Select(title="Select Vaccine Type", options=vaccine, value="COVAXIN")
