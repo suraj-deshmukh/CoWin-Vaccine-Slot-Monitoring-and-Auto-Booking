@@ -16,7 +16,7 @@
 ## About The Project
 ![cowin](https://user-images.githubusercontent.com/14833831/120104460-1e142000-c172-11eb-9d69-781b9479dd00.png)
 
-The Dashboard is developed using ![Bokeh](https://docs.bokeh.org/en/latest/index.html#) and python 3.5+. This dashboard is useful for you if you are looking for something which will help you to book the vaccine slot once slots become available. Other Vaccine Finders will notify you once slots become available but you will still need to login to the portal and book the slot manually. This dashboard will look for slot availability continuously and will send the OTP itself once slots become available. You will need to stay alert to enter the OTP as soon as you received it.
+The Dashboard is developed using <a href="https://docs.bokeh.org/en/latest/index.html#">Bokeh</a> and python 3.5+. This dashboard is useful for you if you are looking for something which will help you to book the vaccine slot once slots become available. Other Vaccine Finders will notify you once slots become available but you will still need to login to the portal and book the slot manually. This dashboard will look for slot availability continuously and will send the OTP itself once slots become available. You will need to stay alert to enter the OTP as soon as you received it.
 
 ## Why this project
 
@@ -25,7 +25,7 @@ Being software developer I always try to automate things which are important to 
 ## Getting Started
 ## Prerequisites
 
-* Docker: Click here to install ![Docker](https://docs.docker.com/engine/install/)
+* Docker: Click here to install <a href="https://docs.docker.com/engine/install/">Docker</a>
 
 If you don't want to use Docker then you will need python 3.5+ installed on your system and then clone this repository using into `cowin-app` folder using `git clone https://github.com/suraj-deshmukh/CoWin-Vaccine-Slot-Monitoring-and-Auto-Booking.git cowin-app` and install prequisites using `pip install -r cowin-app/requirements.txt`
 
