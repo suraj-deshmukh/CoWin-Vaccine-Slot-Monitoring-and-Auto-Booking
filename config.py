@@ -1,4 +1,5 @@
 vaccine = [("COVAXIN","Covaxin"), ( "COVISHIELD", "Covishield"), (( "ANY", "Any"))]
+vaccine_multi = ["COVAXIN","COVISHIELD"]
 fee = [("Free", "Free"), ("Paid", "Paid"), ("Any", "Any")]
 dose = [("1", "1"),("2", "2")]
 age = [("18", "18-44"),("45", "45+")]
@@ -16,3 +17,6 @@ stop_checking = False
 partial_filter = None
 txnId = None
 filtered_session = None
+email = None
+password = None
+check_date = None

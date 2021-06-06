@@ -6,12 +6,93 @@ from tornado import gen
 import requests, json
 from config import *
 import hashlib, re
+import pandas as pd
+import email as eb
+import datetime as dt
+import dateparser
+from imapclient import IMAPClient
+import email, time
 
 with open ('cowin-app/lookup.json', 'r') as f:
     lookup = json.load(f)
 
 session = requests.Session()
 session.headers = headers
+
+# def get_otp(email, password):
+#     server = 'imap.gmail.com'
+#     mail = imaplib.IMAP4_SSL(server)
+#     mail.login(email, password)
+#     start = dt.datetime.now()
+#     while True:
+#         try:
+#             mail.select('inbox')
+#             status, data = mail.search(None, "UNSEEN SUBJECT", '"[SMSForwarder] new otp"')
+#             if data[0]:
+#                 print(f"data: {data}")
+#                 status, msg = mail.fetch(data[0], '(RFC822)')
+#                 message = eb.message_from_string(msg[0][1].decode('utf-8')).get_payload()
+#                 print(f"msg: {message}")
+#                 return re.search(r'\d{6}', message).group()
+#             time.sleep(1)
+#             diff = (dt.datetime.now() - start).total_seconds()
+#             if diff > 180:
+#                 return False
+#         except Exception as e:
+#             print(f"exception: {e}")
+#             return False
+
+def get_otp(email_id, password, check_date):
+    HOST = "imap.gmail.com"
+    USERNAME = email_id
+    PASSWORD = password
+    
+    server = IMAPClient(HOST,use_uid=False)
+    server.login(USERNAME, PASSWORD)
+    start = dt.datetime.now()
+    while True:
+        try:
+            server.select_folder("INBOX")
+            date = dt.datetime.now().strftime("%m-%b-%Y")
+            emails = server.search(['UNSEEN', 'SUBJECT', f'"[SMSForwarder] new otp"','SINCE', date])
+            if emails:       
+                for msg_id in emails:
+                    item = server.fetch(msg_id, "RFC822")
+                    email_message = email.message_from_bytes(item[msg_id][b"RFC822"])
+                    print(f"subject:{email_message.get('Subject')}")
+                    subject = email_message.get("Subject")
+                    if "[SMSForwarder] new otp" in subject:
+                        email_date = dateparser.parse(subject.replace("[SMSForwarder] new otp ", ""))
+                        print(f"email_date: {email_date}")
+                        if email_date >= check_date:
+                            print(f"required email found : {email_message.get_payload()}")
+                            return re.search(r'\d{6}', email_message.get_payload()).group()
+            time.sleep(1.5)
+            diff = (dt.datetime.now() - start).total_seconds()
+            if diff > 180:
+                return False
+        except Exception as e:
+            print(f"exception: {e}")
+            return False
+
+def get_states():
+    resp = session.get('https://cdn-api.co-vin.in/api/v2/admin/location/states')
+    if resp.status_code == 200:
+        states = resp.json()['states']
+        states = [(str(state['state_id']), state['state_name']) for state in states]
+        return states
+    print("Unable to fetch states")
+    return None
+
+def get_districts(state_id):
+    resp = session.get(f'https://cdn-api.co-vin.in/api/v2/admin/location/districts/{state_id}')
+    if resp.status_code == 200:
+        districts = [(str(district['district_id']), district['district_name']) for district in resp.json()['districts']]
+        return districts
+    print("Unable to fetch districts")
+    return None
+    
+
 
 def send_otp(mobno):
     data = {"secret":"U2FsdGVkX196RKSOE31ozbO/QRHGJ6RuEqacJuqWO4NQaA+7SO/1Ixzhqe/fkMtk4HjsB7Bjy1GKdC7qGOHeBg==","mobile": mobno}
@@ -71,8 +152,9 @@ def get_authenticated_session(token):
     header = {'Authorization': f"Bearer {token}"}
     session.headers.update(header)
     
-def book_slot(book, capcha):
-    book["captcha"] = capcha
+def book_slot(book, capcha=None):
+    if capcha:
+        book["captcha"] = capcha
     book = json.dumps(book)
     resp = session.post("https://cdn-api.co-vin.in/api/v2/appointment/schedule", data=book)
     if resp.status_code == 200:
@@ -83,22 +165,48 @@ def book_slot(book, capcha):
         print(f"booking error. {resp.status_code}\n{resp.text}")
         return False, resp.text
 
-def filter(sessions ,center, age_group, fees, vaccine, dose, refids):
-    if (center['fee_type'] == fees or fees == 'Any') and (vaccine == 'ANY' or vaccine == sessions['vaccine']):
-        capacity = sessions.get(f'available_capacity_dose{dose}', None)
-        print(capacity, age_group)
-        print(sessions)
-        if capacity >= len(refids) and str(sessions['min_age_limit']) == age_group:
-            center_details = {
-                'name': center['name'],
-                'center_id': center['center_id'],
-                'sessions': sessions
-            }
-            print(f"\nbooking available for below center:\n{center_details} and vaccine: {sessions['vaccine']}")
-            return  {
-                "center_id": center['center_id'],
-                "session_id": sessions['session_id'],
-                "beneficiaries": refids,
-                "slot": sessions['slots'][0],
-                "dose": dose
-            }
+# def filter(sessions ,center, age_group, fees, vaccine, dose, refids):
+#     if (center['fee_type'] == fees or fees == 'Any') and (vaccine == 'ANY' or vaccine == sessions['vaccine']):
+#         capacity = sessions.get(f'available_capacity_dose{dose}', None)
+#         print(capacity, age_group)
+#         print(sessions)
+#         if capacity >= len(refids) and str(sessions['min_age_limit']) == age_group:
+#             center_details = {
+#                 'name': center['name'],
+#                 'center_id': center['center_id'],
+#                 'sessions': sessions
+#             }
+#             print(f"\nbooking available for below center:\n{center_details} and vaccine: {sessions['vaccine']}")
+#             return  {
+#                 "center_id": center['center_id'],
+#                 "session_id": sessions['session_id'],
+#                 "beneficiaries": refids,
+#                 "slot": sessions['slots'][0],
+#                 "dose": dose
+#             }
+
+def filter(sessions, pincodes, age_group, fees, vaccine, dose, refids):
+    df = pd.DataFrame(sessions['centers'])
+    filter_str = [f"pincode == {pincodes}"]
+    if fees != 'Any':
+        filter_str.append(f"fee_type == '{fees}'")
+    query = " and ".join(filter_str) if len(filter_str) != 1 else filter_str[0]
+    df_sliced = df.query(query)
+    for index, (_, row) in enumerate(df_sliced.iterrows()):
+        for sess in row['sessions']:
+            if sess['vaccine'] in vaccine:
+                capacity = sess.get(f'available_capacity_dose{dose}', None)
+                if capacity >= len(refids) and str(sess['min_age_limit']) == age_group:
+                    center_details = {
+                        'name': row['name'],
+                        'center_id': row['center_id'],
+                        'sessions': sess
+                    }
+                    print(f"\nbooking available for below center:\n{center_details} and vaccine: {sess['vaccine']}")
+                    return  [{
+                        "center_id": row['center_id'],
+                        "session_id": sess['session_id'],
+                        "beneficiaries": refids,
+                        "slot": sess['slots'][0],
+                        "dose": dose
+                    },{'name': row['name'], 'session': sess, 'pin': row['pincode']}]
