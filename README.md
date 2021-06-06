@@ -18,7 +18,9 @@
 
 The Dashboard is developed using <a href="https://docs.bokeh.org/en/latest/index.html#">Bokeh</a> and python 3.5+. This dashboard is useful for you if you are looking for something which will help you to book the vaccine slot once slots become available. Other Vaccine Finders will notify you once slots become available but you will still need to login to the portal and book the slot manually. This dashboard will look for slot availability continuously and will send the OTP itself once slots become available. 
 
-There are two modes available i.e **Auto** and **Manual** mode. In **Manual** mode, user will need to stay alert to enter the OTP as soon as you received it. And in **Auto** mode user will need to do some installation and configuration as given here
+There are two modes available i.e **Auto** and **Manual** mode. In **Manual** mode, user will need to stay alert to enter the OTP manually. 
+
+And in **Auto** mode, user will need to do some installation and configuration as given ![here](https://github.com/suraj-deshmukh/CoWin-Vaccine-Slot-Monitoring-and-Auto-Booking/blob/main/README.md#prior-gmail-settings-and-sms-forwarder-app-configuration-for-auto-modenot-required-for-manual-mode), so that script can detect the otp and will book the slot automatically. **Auto Mode May not work all the time as this is a experimental feature**
 
 ## Why this project
 
