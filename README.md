@@ -30,6 +30,10 @@ And in **Auto** mode, user will need to do some installation and configuration a
 
 Being software developer I always try to automate things which are important to me. I really struggled to book the slot on cowin portal and other vaccine finder scripts did not helped me at all. So I wanted to do build something which will not just look for vaccine availability but also help me in automating the otp sending and slot booking tasks.
 
+## How this app different from other applications
+
+Other apps/scripts expects you to feed otp every 15 minutes or something which is really not the cool idea. When you use this application, you don't need to feed otp's continuously rather this app will keep on searching for availability and will send otp only when there is slot available. In **Auto** mode if you have configured things properly then you don't even need to stay near to your laptop provided your phone is always connected to **wifi or mobile data**
+
 ## Getting Started
 ## Prerequisites
 
