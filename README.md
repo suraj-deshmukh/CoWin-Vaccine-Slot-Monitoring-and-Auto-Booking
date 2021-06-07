@@ -22,7 +22,7 @@ There are two modes available i.e **Auto** and **Manual** mode. In **Manual** mo
 
 And in **Auto** mode, user will need to do some installation and configuration as given ![here](https://github.com/suraj-deshmukh/CoWin-Vaccine-Slot-Monitoring-and-Auto-Booking/blob/main/README.md#prior-gmail-settings-and-sms-forwarder-app-configuration-for-auto-modenot-required-for-manual-mode), so that script can detect the otp and will book the slot automatically. **Auto Mode May not work all the time as this is a experimental feature**
 
-**If you Like my work, you Buy me a coffee (or more likely a beer)**
+**If you Like my work, you can Buy me a coffee (or more likely a beer)**
 
 <a href="https://www.buymeacoffee.com/surajdeshmukh" target="_blank"><img src="https://bmc-cdn.nyc3.digitaloceanspaces.com/BMC-button-images/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
 
