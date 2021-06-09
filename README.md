@@ -88,12 +88,12 @@ Finally Click on `SAVE` button on **top-right** corner. You can always enable or
 ### Usage for Docker
 <h6>Auto Mode</h6>
 
-* Open Command Prompt and run `docker run --pull always -p 5100:5100 -e TZ=Asia/Kolkata suraj20/cowin-vaccine-monitoring-n-booking-dashboard:latest --args "you_gmail@gmail.com" "app_password_here"`. The argument `--pull always` makes sure you are pulling latest image from docker hub. 
+* Open Command Prompt and run `docker run --pull always -p 5100:5100 -e PYTHONUNBUFFERED=1 -e TZ=Asia/Kolkata suraj20/cowin-vaccine-monitoring-n-booking-dashboard:latest --args "you_gmail@gmail.com" "app_password_here"`. The argument `--pull always` makes sure you are pulling latest image from docker hub. 
 * Open browser and type `http://localhost:5100/cowin-app`. 
 
 <h6>Manual Mode</h6>
 
-* Open Command Prompt and run `docker run --pull always -p 5100:5100 suraj20/cowin-vaccine-monitoring-n-booking-dashboard:latest`. The argument `--pull always` makes sure you are pulling latest image from docker hub. 
+* Open Command Prompt and run `docker run --pull always -p 5100:5100 -e PYTHONUNBUFFERED=1 suraj20/cowin-vaccine-monitoring-n-booking-dashboard:latest`. The argument `--pull always` makes sure you are pulling latest image from docker hub. 
 * Open browser and type `http://localhost:5100/cowin-app`. 
 
 ### Usage for non Docker
