@@ -107,7 +107,7 @@ vaccines = MultiChoice(title="Select Vaccine Type", options=vaccine_multi, value
 doseno = Select(title="Select Dose Number", options=dose, value="1")
 fees = Select(title="Select Fees", options=fee, value="Any")
 group = Select(title="Select Age Group", options=age, value="18")
-mode = Select(title="Select Mode", options=[("Auto", "Auto"),("Manual", "Manual")], disabled = True)
+mode = Select(title="Select Mode", options=[("Auto", "Auto"),("Manual", "Manual")], value='Manual',disabled = True)
 refids = TextInput(title="Enter Ref IDs for above selected group", placeholder="Ref IDs in comma seperated format. like id1,id2")
 button = Button(label="Submit Information", button_type="success", height=50)
 start = Button(label="Start", button_type="success", height=50, disabled = True)
