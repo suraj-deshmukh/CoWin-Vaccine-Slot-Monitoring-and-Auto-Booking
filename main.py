@@ -7,12 +7,14 @@ from utils import *
 import os, sys
 
 @gen.coroutine
-def book(one_time_pin):
+def book(one_time_pin, error):
+    # print(f"otp_response: {one_time_pin}")
     if one_time_pin == False:
-        login_stats.text = "Unable to fetch otp"
+        login_stats.text = error
     else: 
         otp.value = one_time_pin
         verify_otp_callback()
+    thread_stat.text = "STOPPED"
 
 @gen.coroutine
 def update(notification_json):
@@ -27,7 +29,7 @@ def update(notification_json):
         thread_stat.text = "RUNNING..."
         slot_available = notification_json.get('slot_available', None)
         if slot_available == True:
-            thread_stat.text = "STOPPED DUE TO SLOT AVAILABILITY"
+            thread_stat.text = "Waiting...to fetch OTP" if mode.value == 'Auto' else "STOPPED"
             stop.disabled = True
             button.disabled = False
             notifications.text = "Status:<br>" + f"status code: {code}(success)<br>" + f"response text:<br> <pre>{json.dumps(output, indent=4)}</pre>"
@@ -57,32 +59,37 @@ def fun():
     DATE = datetime.strptime(date.value, "%Y-%m-%d").strftime("%d-%m-%Y")
     session.headers.pop('Authorization', None) #don
     while True:
-        out = session.get(f"https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByDistrict?district_id={district_id}&date={DATE}")
-        if stop_checking:
-            doc.add_next_tick_callback(partial(update, notification_json = {'status': 'STOPPED_BY_USER'}))
-            print("Exiting......")
-            return None
-        if out.status_code == 200:
-            doc.add_next_tick_callback(partial(update, {'status': 'SUCCESS', 'code': 200}))
-            filtered_session = partial_filter(sessions = out.json())
-            if filtered_session:
-                print(f"slot: {filtered_session[0]}")
-                print(f"before txnId: {txnId}")
-                doc.add_next_tick_callback(partial(update, {'status': 'SUCCESS', 'code': 200, 'name': filtered_session[1]['name'], 'session': filtered_session[1]['session'] , 'pin': filtered_session[1]['pin'],'slot_available': True}))
-                print(f"after txnId: {txnId}")
-                time.sleep(1)
-                print(f"after txnId: {txnId}")
-                # check_date = datetime.now()
-                print(f"otp sent at: {check_date}")
-                if mode.value == 'Auto':
-                    otp_response = get_otp(email, password, check_date)
-                    doc.add_next_tick_callback(partial(book, one_time_pin=otp_response))
+        try:
+            out = session.get(f"https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByDistrict?district_id={district_id}&date={DATE}", timeout=3)
+            if stop_checking:
+                doc.add_next_tick_callback(partial(update, notification_json = {'status': 'STOPPED_BY_USER'}))
+                print("Exiting......")
                 return None
-        else:
-            print(f"status code: {out.status_code}")
-            print(f"response: {out.text}")
-            doc.add_next_tick_callback(partial(update, notification_json={'status': 'FAILED', 'code': out.status_code, 'session': out.text}))
-        time.sleep(3)
+            if out.status_code == 200:
+                doc.add_next_tick_callback(partial(update, {'status': 'SUCCESS', 'code': 200}))
+                filtered_session = partial_filter(sessions = out.json())
+                if filtered_session:
+                    print(f"slot: {filtered_session[0]}")
+                    # print(f"before txnId: {txnId}")
+                    doc.add_next_tick_callback(partial(update, {'status': 'SUCCESS', 'code': 200, 'name': filtered_session[1]['name'], 'session': filtered_session[1]['session'] , 'pin': filtered_session[1]['pin'],'slot_available': True}))
+                    # print(f"after txnId: {txnId}")
+                    time.sleep(1)
+                    print(f"txnId: {txnId}")
+                    # check_date = datetime.now()
+                    print(f"otp sent at: {check_date}")
+                    if mode.value == 'Auto':
+                        otp_response, error = get_otp(email, password, check_date)
+                        # print(f"otp_response: {otp_response}")
+                        doc.add_next_tick_callback(partial(book, one_time_pin=otp_response, error=error))
+                    return None
+            else:
+                print(f"status code: {out.status_code}")
+                print(f"response: {out.text}")
+                doc.add_next_tick_callback(partial(update, notification_json={'status': 'FAILED', 'code': out.status_code, 'session': out.text}))
+            time.sleep(3)
+        except Exception as e:
+            print(f"thread exception: {e}")
+            # time.sleep(1)
 
 doc = curdoc()
 user = {}
@@ -95,12 +102,12 @@ pincodes = TextInput(title="Enter Pincodes", placeholder="Pincodes in comma sepe
 states = Select(title="State", options=[('None', '----Select State----')]+get_states())
 districts = Select(title="District", options=[('None', '----Select District----')])
 
-vaccines = MultiChoice(title="Select Vaccine Type", options=vaccine_multi)
+vaccines = MultiChoice(title="Select Vaccine Type", options=vaccine_multi, value=vaccine_multi)
 # vaccines = Select(title="Select Vaccine Type", options=vaccine, value="COVAXIN")
 doseno = Select(title="Select Dose Number", options=dose, value="1")
-fees = Select(title="Select Fees", options=fee, value="Free")
+fees = Select(title="Select Fees", options=fee, value="Any")
 group = Select(title="Select Age Group", options=age, value="18")
-mode = Select(title="Select Mode", options=[("Auto", "Auto"),("Manual", "Manual")], value="Manual", disabled = True)
+mode = Select(title="Select Mode", options=[("Auto", "Auto"),("Manual", "Manual")], disabled = True)
 refids = TextInput(title="Enter Ref IDs for above selected group", placeholder="Ref IDs in comma seperated format. like id1,id2")
 button = Button(label="Submit Information", button_type="success", height=50)
 start = Button(label="Start", button_type="success", height=50, disabled = True)
@@ -122,7 +129,7 @@ thread_stat = Div(text="NA")
 
 def check_mode():
     if len(sys.argv) == 8:
-        print('here')
+        # print('here')
         mode.disabled = False
     else:
         mode.disabled = True

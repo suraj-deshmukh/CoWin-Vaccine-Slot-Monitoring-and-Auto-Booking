@@ -47,64 +47,74 @@ def get_otp(email_id, password, check_date):
     USERNAME = email_id
     PASSWORD = password
     
-    server = IMAPClient(HOST,use_uid=False)
-    server.login(USERNAME, PASSWORD)
+    # server = IMAPClient(HOST,use_uid=False)
+    # server.login(USERNAME, PASSWORD)
     start = dt.datetime.now()
-    while True:
-        try:
-            server.select_folder("INBOX")
-            date = dt.datetime.now().strftime("%m-%b-%Y")
-            emails = server.search(['UNSEEN', 'SUBJECT', f'"[SMSForwarder] new otp"','SINCE', date])
-            if emails:       
-                for msg_id in emails:
-                    item = server.fetch(msg_id, "RFC822")
-                    email_message = email.message_from_bytes(item[msg_id][b"RFC822"])
-                    print(f"subject:{email_message.get('Subject')}")
-                    subject = email_message.get("Subject")
-                    if "[SMSForwarder] new otp" in subject:
-                        email_date = dateparser.parse(subject.replace("[SMSForwarder] new otp ", ""))
-                        print(f"email_date: {email_date}")
-                        if email_date >= check_date:
-                            print(f"required email found : {email_message.get_payload()}")
-                            return re.search(r'\d{6}', email_message.get_payload()).group()
-            time.sleep(1.5)
-            diff = (dt.datetime.now() - start).total_seconds()
-            if diff > 180:
-                return False
-        except Exception as e:
-            print(f"exception: {e}")
-            return False
+    try:
+        with IMAPClient(HOST,use_uid=False,timeout=180) as server:
+            server.login(USERNAME, PASSWORD)
+            while True:
+                # print("checking")
+                server.select_folder("INBOX")
+                date = dt.datetime.now().strftime("%m-%b-%Y")
+                emails = server.search(['UNSEEN', 'SUBJECT', f'"[SMSForwarder] new otp"','SINCE', date])
+                if emails:       
+                    for msg_id in emails:
+                        item = server.fetch(msg_id, "RFC822")
+                        email_message = email.message_from_bytes(item[msg_id][b"RFC822"])
+                        print(f"subject:{email_message.get('Subject')}")
+                        subject = email_message.get("Subject")
+                        if "[SMSForwarder] new otp" in subject:
+                            email_date = dateparser.parse(subject.replace("[SMSForwarder] new otp ", ""))
+                            print(f"email_date: {email_date}")
+                            if email_date >= check_date:
+                                print(f"required email found : {email_message.get_payload()}")
+                                return re.search(r'\d{6}', email_message.get_payload()).group(), None
+                time.sleep(1.5)
+                diff = (dt.datetime.now() - start).total_seconds()
+                if diff > 180:
+                    return False, "OTP Email not received"
+    except Exception as e:
+        print(f"exception: {e}")
+        return False, str(e)
 
 def get_states():
-    resp = session.get('https://cdn-api.co-vin.in/api/v2/admin/location/states')
-    if resp.status_code == 200:
-        states = resp.json()['states']
-        states = [(str(state['state_id']), state['state_name']) for state in states]
-        return states
-    print("Unable to fetch states")
-    return None
+    try:
+        resp = session.get('https://cdn-api.co-vin.in/api/v2/admin/location/states', timeout=3)
+        if resp.status_code == 200:
+            states = resp.json()['states']
+            states = [(str(state['state_id']), state['state_name']) for state in states]
+            return states
+    except Exception as e:
+        print(f"Unable to fetch states: {e}")
+        return []
 
 def get_districts(state_id):
-    resp = session.get(f'https://cdn-api.co-vin.in/api/v2/admin/location/districts/{state_id}')
-    if resp.status_code == 200:
-        districts = [(str(district['district_id']), district['district_name']) for district in resp.json()['districts']]
-        return districts
-    print("Unable to fetch districts")
-    return None
+    try:
+        resp = session.get(f'https://cdn-api.co-vin.in/api/v2/admin/location/districts/{state_id}', timeout=3)
+        if resp.status_code == 200:
+            districts = [(str(district['district_id']), district['district_name']) for district in resp.json()['districts']]
+            return districts
+    except Exception as e:
+        print(f"Unable to fetch districts: {e}")
+        return []
     
 
-
 def send_otp(mobno):
-    data = {"secret":"U2FsdGVkX196RKSOE31ozbO/QRHGJ6RuEqacJuqWO4NQaA+7SO/1Ixzhqe/fkMtk4HjsB7Bjy1GKdC7qGOHeBg==","mobile": mobno}
-    resp = session.post('https://cdn-api.co-vin.in/api/v2/auth/generateMobileOTP', data=json.dumps(data))
-    if resp.status_code == 200:
-        print("OTP SENT SUCCESSFULLY")
-        out_json = resp.json()
-        print(f"Transaction ID: {out_json}")
-        return True, out_json
-    else:
-        print(f"Generate otp Status code: {resp.status_code}\n{resp.text}")
-        return False, resp.text
+    try:
+        data = {"secret":"U2FsdGVkX196RKSOE31ozbO/QRHGJ6RuEqacJuqWO4NQaA+7SO/1Ixzhqe/fkMtk4HjsB7Bjy1GKdC7qGOHeBg==","mobile": mobno}
+        resp = session.post('https://cdn-api.co-vin.in/api/v2/auth/generateMobileOTP', data=json.dumps(data), timeout=10)
+        if resp.status_code == 200:
+            print("OTP SENT SUCCESSFULLY")
+            out_json = resp.json()
+            print(f"Transaction ID: {out_json}")
+            return True, out_json
+        else:
+            print(f"Generate otp Status code: {resp.status_code}\n{resp.text}")
+            return False, resp.text
+    except Exception as e:
+        print(f"error occurred while sending otp: {e}")
+        return False, "Could Not Send OTP"
 
 def send_capcha():
     out = session.post("https://cdn-api.co-vin.in/api/v2/auth/getRecaptcha")
@@ -117,18 +127,22 @@ def send_capcha():
         return False, out.text
 
 def verify_otp(mobno, otp, txnId):
-    pin = hashlib.sha256(bytes(otp, 'utf-8')).hexdigest()
-    validate = {"otp": pin, "txnId": txnId} 
-    resp = session.post('https://cdn-api.co-vin.in/api/v2/auth/validateMobileOtp', data=json.dumps(validate))
-    if resp.status_code == 200:
-        print("OTP SUCCESSFULLY VERIFIED")
-        out_json = resp.json()
-        token = out_json['token']
-        get_authenticated_session(token)
-        return True, out_json
-    else:
-        print(f"Validate otp Status code: {resp.status_code}\n{resp.text}")
-        return False, resp.text
+    try:
+        pin = hashlib.sha256(bytes(otp, 'utf-8')).hexdigest()
+        validate = {"otp": pin, "txnId": txnId} 
+        resp = session.post('https://cdn-api.co-vin.in/api/v2/auth/validateMobileOtp', data=json.dumps(validate), timeout=10)
+        if resp.status_code == 200:
+            print("OTP SUCCESSFULLY VERIFIED")
+            out_json = resp.json()
+            token = out_json['token']
+            get_authenticated_session(token)
+            return True, out_json
+        else:
+            print(f"Validate otp Status code: {resp.status_code}\n{resp.text}")
+            return False, resp.text
+    except Exception as e:
+        print(f"error while verifying otp: {e}")
+        return False, str(e)
 
 def solve_captcha(svg_string):
     try:
@@ -192,9 +206,11 @@ def filter(sessions, pincodes, age_group, fees, vaccine, dose, refids):
         filter_str.append(f"fee_type == '{fees}'")
     query = " and ".join(filter_str) if len(filter_str) != 1 else filter_str[0]
     df_sliced = df.query(query)
+    print(f"centers: {len(df_sliced)} at {dt.datetime.now()}")
     for index, (_, row) in enumerate(df_sliced.iterrows()):
         for sess in row['sessions']:
             if sess['vaccine'] in vaccine:
+                # print(f"{sess['vaccine']}/{row['center_id']}/{row['name']}")
                 capacity = sess.get(f'available_capacity_dose{dose}', None)
                 if capacity >= len(refids) and str(sess['min_age_limit']) == age_group:
                     center_details = {
@@ -210,3 +226,5 @@ def filter(sessions, pincodes, age_group, fees, vaccine, dose, refids):
                         "slot": sess['slots'][0],
                         "dose": dose
                     },{'name': row['name'], 'session': sess, 'pin': row['pincode']}]
+    print(f"finished filtering: {dt.datetime.now()}")
+    
