@@ -200,31 +200,19 @@ def book_slot(book, capcha=None):
 #             }
 
 def filter(sessions, pincodes, age_group, fees, vaccine, dose, refids):
-    df = pd.DataFrame(sessions['centers'])
-    filter_str = [f"pincode == {pincodes}"]
+    df = pd.DataFrame(sessions['sessions'])
+    query = f"pincode == {pincodes} and min_age_limit == {age_group} and vaccine == {vaccine} and available_capacity_dose{dose} >= {len(refids)}"
     if fees != 'Any':
-        filter_str.append(f"fee_type == '{fees}'")
-    query = " and ".join(filter_str) if len(filter_str) != 1 else filter_str[0]
+        query = query + f" and fee_type == '{fees}'"
     df_sliced = df.query(query)
-    print(f"centers: {len(df_sliced)} at {dt.datetime.now()}")
     for index, (_, row) in enumerate(df_sliced.iterrows()):
-        for sess in row['sessions']:
-            if sess['vaccine'] in vaccine:
-                # print(f"{sess['vaccine']}/{row['center_id']}/{row['name']}")
-                capacity = sess.get(f'available_capacity_dose{dose}', None)
-                if capacity >= len(refids) and str(sess['min_age_limit']) == age_group:
-                    center_details = {
-                        'name': row['name'],
-                        'center_id': row['center_id'],
-                        'sessions': sess
-                    }
-                    print(f"\nbooking available for below center:\n{center_details} and vaccine: {sess['vaccine']}")
-                    return  [{
-                        "center_id": row['center_id'],
-                        "session_id": sess['session_id'],
-                        "beneficiaries": refids,
-                        "slot": sess['slots'][0],
-                        "dose": dose
-                    },{'name': row['name'], 'session': sess, 'pin': row['pincode']}]
-    print(f"finished filtering: {dt.datetime.now()}")
+        print(f"\nbooking available for below center:\n{row}")
+        return  [{
+            "center_id": row['center_id'],
+            "session_id": row['session_id'],
+            "beneficiaries": refids,
+            "slot": row['slots'][0],
+            "dose": dose
+        },{'name': row['name'], 'session': json.loads(row.to_json()), 'pin': row['pincode']}]
+    print(f"sessions: {len(df_sliced)} at {dt.datetime.now()}\tfinished filtering: {dt.datetime.now()}", end="\r")
     

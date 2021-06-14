@@ -41,6 +41,7 @@ def update(notification_json):
                 txnId = otp_stat[1]['txnId']
             else:
                 login_stats.text = f"Unable to send OTP on Reg Mob No.<br><pre>{json.dumps(otp_stat[1], indent=4)}</pre>"
+                txnId = False
     elif process_status == 'STOPPED_BY_USER':
         thread_stat.text = "STOPPED"
         notifications.text = "NA"
@@ -60,7 +61,9 @@ def fun():
     session.headers.pop('Authorization', None) #don
     while True:
         try:
-            out = session.get(f"https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByDistrict?district_id={district_id}&date={DATE}", timeout=3)
+            start = datetime.now()
+            out = session.get(f"https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id={district_id}&date={DATE}", timeout=3)
+            # total_seconds = 3 - (datetime.now() - start).total_seconds()
             if stop_checking:
                 doc.add_next_tick_callback(partial(update, notification_json = {'status': 'STOPPED_BY_USER'}))
                 print("Exiting......")
@@ -76,8 +79,8 @@ def fun():
                     time.sleep(1)
                     print(f"txnId: {txnId}")
                     # check_date = datetime.now()
-                    print(f"otp sent at: {check_date}")
-                    if mode.value == 'Auto':
+                    if mode.value == 'Auto' and txnId != False:
+                        print(f"otp sent at: {check_date}")
                         otp_response, error = get_otp(email, password, check_date)
                         # print(f"otp_response: {otp_response}")
                         doc.add_next_tick_callback(partial(book, one_time_pin=otp_response, error=error))
@@ -86,9 +89,13 @@ def fun():
                 print(f"status code: {out.status_code}")
                 print(f"response: {out.text}")
                 doc.add_next_tick_callback(partial(update, notification_json={'status': 'FAILED', 'code': out.status_code, 'session': out.text}))
+            # if total_seconds < 0:
+            #     pass
+            # else:
+            #     time.sleep(total_seconds)
             time.sleep(3)
         except Exception as e:
-            print(f"thread exception: {e}")
+            print(f"\nthread exception: {e} at {start}\n")
             # time.sleep(1)
 
 doc = curdoc()
