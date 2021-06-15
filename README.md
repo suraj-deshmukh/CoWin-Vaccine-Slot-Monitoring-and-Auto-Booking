@@ -11,7 +11,13 @@
   </p>
 </p>
 
-
+![GitHub issues](https://img.shields.io/github/issues/suraj-deshmukh/CoWin-Vaccine-Slot-Monitoring-and-Auto-Booking?style=for-the-badge)
+![GitHub](https://img.shields.io/github/license/suraj-deshmukh/CoWin-Vaccine-Slot-Monitoring-and-Auto-Booking?style=for-the-badge)
+![GitHub last commit](https://img.shields.io/github/last-commit/suraj-deshmukh/CoWin-Vaccine-Slot-Monitoring-and-Auto-Booking?style=for-the-badge)
+![GitHub Repo stars](https://img.shields.io/github/stars/suraj-deshmukh/CoWin-Vaccine-Slot-Monitoring-and-Auto-Booking?style=for-the-badge)
+![GitHub forks](https://img.shields.io/github/forks/suraj-deshmukh/CoWin-Vaccine-Slot-Monitoring-and-Auto-Booking?style=for-the-badge)
+![GitHub watchers](https://img.shields.io/github/watchers/suraj-deshmukh/CoWin-Vaccine-Slot-Monitoring-and-Auto-Booking?style=for-the-badge)
+![Maintained](https://img.shields.io/badge/maintained-yes-success?style=for-the-badge)
 
 ## About The Project
 ![new_cowin](https://user-images.githubusercontent.com/14833831/120936221-5ee8d780-c724-11eb-85e0-01e25bb1e1d4.png)
