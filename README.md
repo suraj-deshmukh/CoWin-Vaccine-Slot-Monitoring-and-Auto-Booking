@@ -17,9 +17,6 @@
 ![GitHub Repo stars](https://img.shields.io/github/stars/suraj-deshmukh/CoWin-Vaccine-Slot-Monitoring-and-Auto-Booking?style=for-the-badge)
 ![GitHub forks](https://img.shields.io/github/forks/suraj-deshmukh/CoWin-Vaccine-Slot-Monitoring-and-Auto-Booking?style=for-the-badge)
 ![GitHub watchers](https://img.shields.io/github/watchers/suraj-deshmukh/CoWin-Vaccine-Slot-Monitoring-and-Auto-Booking?style=for-the-badge)
-
-[![GitHub Watches](https://img.shields.io/github/watchers/suraj-deshmukh/CoWin-Vaccine-Slot-Monitoring-and-Auto-Booking?style=for-the-badge&label=Watchers&maxAge=2592000)](https://github.com/suraj-deshmukh/CoWin-Vaccine-Slot-Monitoring-and-Auto-Booking/watchers)
-
 ![Maintained](https://img.shields.io/badge/maintained-yes-success?style=for-the-badge)
 
 ## About The Project
