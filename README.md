@@ -1,3 +1,8 @@
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+
 <br />
 <p align="center">
   <h3 align="center">CoWIN Vaccine Slot Monitoring and Auto Booking<strike>(With Auto Capcha Solver)</strike></h3>
