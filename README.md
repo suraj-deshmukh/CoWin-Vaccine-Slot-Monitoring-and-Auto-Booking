@@ -26,7 +26,7 @@ And in **Auto** mode, user will need to do some installation and configuration a
 
 <a href="https://www.buymeacoffee.com/surajdeshmukh" target="_blank"><img src="https://bmc-cdn.nyc3.digitaloceanspaces.com/BMC-button-images/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
 
-<h3>If this Dashbaord has helped you to book your appointment then please don't forget to leave comment <a href="https://github.com/suraj-deshmukh/CoWin-Vaccine-Slot-Monitoring-and-Auto-Booking/issues/new?title=Booked Successfully&labels=success">here</a>.</h3>
+<h3>If this Dashboard has helped you to book your appointment then please don't forget to leave comment <a href="https://github.com/suraj-deshmukh/CoWin-Vaccine-Slot-Monitoring-and-Auto-Booking/issues/new?title=Booked Successfully&labels=success">here</a>.</h3>
 
 
 ## Why this project
