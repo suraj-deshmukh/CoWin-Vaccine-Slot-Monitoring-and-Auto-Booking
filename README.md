@@ -26,6 +26,8 @@ And in **Auto** mode, user will need to do some installation and configuration a
 
 <a href="https://www.buymeacoffee.com/surajdeshmukh" target="_blank"><img src="https://bmc-cdn.nyc3.digitaloceanspaces.com/BMC-button-images/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
 
+**If this Dashbaord has helped you to book your appointment then please don't forget to leave comment <a href="https://github.com/suraj-deshmukh/CoWin-Vaccine-Slot-Monitoring-and-Auto-Booking/issues/new?title=Booked Successfully&labels=success">here</a>.**
+
 ## Why this project
 
 Being software developer I always try to automate things which are important to me. I really struggled to book the slot on cowin portal and other vaccine finder scripts did not helped me at all. So I wanted to do build something which will not just look for vaccine availability but also help me in automating the otp sending and slot booking tasks.
