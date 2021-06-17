@@ -200,19 +200,19 @@ def book_slot(book, capcha=None):
 #             }
 
 def filter(sessions, pincodes, age_group, fees, vaccine, dose, refids):
-    df = pd.DataFrame(sessions['sessions'])
-    query = f"pincode == {pincodes} and min_age_limit == {age_group} and vaccine == {vaccine} and available_capacity_dose{dose} >= {len(refids)}"
-    if fees != 'Any':
-        query = query + f" and fee_type == '{fees}'"
-    df_sliced = df.query(query)
-    for index, (_, row) in enumerate(df_sliced.iterrows()):
-        print(f"\nbooking available for below center:\n{row}")
-        return  [{
-            "center_id": row['center_id'],
-            "session_id": row['session_id'],
-            "beneficiaries": refids,
-            "slot": row['slots'][0],
-            "dose": dose
-        },{'name': row['name'], 'session': json.loads(row.to_json()), 'pin': row['pincode']}]
-    print(f"sessions: {len(df_sliced)} at {dt.datetime.now()}\tfinished filtering: {dt.datetime.now()}", end="\r")
-    
+    if sessions['sessions']:
+        df = pd.DataFrame(sessions['sessions'])
+        query = f"pincode == {pincodes} and min_age_limit == {age_group} and vaccine == {vaccine} and available_capacity_dose{dose} >= {len(refids)}"
+        if fees != 'Any':
+            query = query + f" and fee_type == '{fees}'"
+        df_sliced = df.query(query)
+        print(f"sessions: {len(df_sliced)} at {dt.datetime.now()}\tfinished filtering: {dt.datetime.now()}", end="\r")
+        for index, (_, row) in enumerate(df_sliced.iterrows()):
+            print(f"\nbooking available for below center:\n{row}")
+            return  [{
+                "center_id": row['center_id'],
+                "session_id": row['session_id'],
+                "beneficiaries": refids,
+                "slot": row['slots'][0],
+                "dose": dose
+            },{'name': row['name'], 'session': json.loads(row.to_json()), 'pin': row['pincode']}]    

@@ -5,6 +5,7 @@ from bokeh.models.widgets import DatePicker
 from datetime import timedelta, datetime
 from utils import *
 import os, sys
+import traceback
 
 @gen.coroutine
 def book(one_time_pin, error):
@@ -96,6 +97,7 @@ def fun():
             time.sleep(3)
         except Exception as e:
             print(f"\nthread exception: {e} at {start}\n")
+            traceback.print_exc()
             # time.sleep(1)
 
 doc = curdoc()
