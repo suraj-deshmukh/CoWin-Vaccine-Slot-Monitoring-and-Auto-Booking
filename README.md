@@ -127,6 +127,9 @@ I recommend using docker option to run this dashboard. The docker option will ma
 1. Enter all the details as explained above and the click on `Submit Information` button. All fields except OTP and Captcha one will be disabled.
 2. Once you click on `Submit Information` button, `Start` button will get enabled and then you can start the background process in seperate thread. The background thread will then monitor the given picodes continuously for slots availability as per the given filters. Once slots becomes available in **any of the center in given pincodes**, script will send otp to registered mobile number and background thread will stop checking for slots. You will get message as ***OTP sent successfully pn Reg Mob No. Please enter the OTP within 3 minutes***. The center details for which slots are availbale will get populated under `Center Name` as shown below
 ![session](https://user-images.githubusercontent.com/14833831/120108972-1ad65f80-c185-11eb-8476-476276ffe199.png)
+
+   You will hear beep sound for 5 seconds once script sends otp to reg mob number. This works irrespective of selected mode.
+
 3. If you have selected Manual mode then enter the OTP received on registered mobile number and click on `Submit OTP`. If otp is correct then you will get message on dashboard as below
 
 ![Screenshot from 2021-06-06 22-37-15 (copy)](https://user-images.githubusercontent.com/14833831/120936906-22b77600-c728-11eb-8f08-83bcad8f0c16.png)
