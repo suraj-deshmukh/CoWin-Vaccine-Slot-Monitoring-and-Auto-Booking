@@ -239,6 +239,23 @@ if (doseno.value == 2 && vaccines.value.length > 1){
 }
 """)
 
+beep_call = CustomJS(args = {'login_stats': login_stats}, code ="""
+console.log(login_stats.text);
+var op = login_stats.text;
+if (op.startsWith('OTP sent Successfully on Reg Mob No')) {
+    var context = new AudioContext();
+    var oscillator = context.createOscillator();
+    var gain = context.createGain();
+    oscillator.connect(gain);
+    oscillator.frequency.value = 400;
+    oscillator.type = "square";
+    gain.connect(context.destination);
+    gain.gain.value = 100 * 0.01;
+    oscillator.start(context.currentTime);
+    oscillator.stop(context.currentTime + 5000 * 0.001);
+}
+""")
+
 button.on_click(submit)
 start.on_click(start_process)
 stop.on_click(stop_process)
@@ -248,6 +265,7 @@ doseno.js_on_change('value', callback)
 vaccines.js_on_change('value', callback)
 states.on_change('value', dropdown)
 mode.on_change('value', get_creds)
+login_stats.js_on_change('text', beep_call)
 
 # row1 = row([column([name, mobno, date]),column([pincodes, vaccines, doseno]), column([fees, group, refids]), column([button, start, stop])])
 # row2 = row([column([otp, otp_submit]), column([capcha_input, capcha_submit]), capcha])
