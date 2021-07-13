@@ -200,11 +200,20 @@ def book_slot(book, capcha=None):
 #             }
 
 def filter(sessions, pincodes, age_group, fees, vaccine, dose, refids):
+    allow_all_age = False
     if sessions['sessions']:
         df = pd.DataFrame(sessions['sessions'])
+        print(age_group)
+        if age_group == "18+":
+            age_group = "18"
+            allow_all_age = True
         query = f"pincode == {pincodes} and min_age_limit == {age_group} and vaccine == {vaccine} and available_capacity_dose{dose} >= {len(refids)}"
         if fees != 'Any':
             query = query + f" and fee_type == '{fees}'"
+        if allow_all_age:
+            query = query + f" and allow_all_age == True"
+        else:
+            query = query + f" and allow_all_age == False"
         df_sliced = df.query(query)
         print(f"sessions: {len(df_sliced)} at {dt.datetime.now()}\tfinished filtering: {dt.datetime.now()}", end="\r")
         for index, (_, row) in enumerate(df_sliced.iterrows()):

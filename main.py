@@ -1,7 +1,8 @@
 from bokeh.io import curdoc
 from bokeh.layouts import column, row
-from bokeh.models import Div, Select, TextInput, Button, CustomJS, MultiChoice
+from bokeh.models import Div, Select, TextInput, Button, CustomJS, MultiChoice, Spinner
 from bokeh.models.widgets import DatePicker
+from bokeh.events import ButtonClick
 from datetime import timedelta, datetime
 from utils import *
 import os, sys
@@ -130,6 +131,9 @@ capcha_input = TextInput(title="Enter Captcha", placeholder="captcha", sizing_mo
 capcha_submit = Button(label="Submit Captcha and Book Slot", button_type="success", height=50, disabled = True)
 # resend_capcha = Button(label="Resend Capcha", button_type="success")
 
+spinner = Spinner(title="Beep Duration", low=3, high=20, step=1, value=3)
+beep_button = Button(label="Play Beep", button_type="success", height=50)
+
 login_stats = Div(text="NA")
 pin = Div(text="NA")
 center_name = Div(text="NA")
@@ -239,20 +243,11 @@ if (doseno.value == 2 && vaccines.value.length > 1){
 }
 """)
 
-beep_call = CustomJS(args = {'login_stats': login_stats}, code ="""
+beep_call = CustomJS(args = {'login_stats': login_stats, 'spinner': spinner}, code ="""
 console.log(login_stats.text);
 var op = login_stats.text;
 if (op.startsWith('OTP sent Successfully on Reg Mob No')) {
-    var context = new AudioContext();
-    var oscillator = context.createOscillator();
-    var gain = context.createGain();
-    oscillator.connect(gain);
-    oscillator.frequency.value = 400;
-    oscillator.type = "square";
-    gain.connect(context.destination);
-    gain.gain.value = 100 * 0.01;
-    oscillator.start(context.currentTime);
-    oscillator.stop(context.currentTime + 5000 * 0.001);
+    beep_sound(spinner.value);
 }
 """)
 
@@ -267,12 +262,14 @@ states.on_change('value', dropdown)
 mode.on_change('value', get_creds)
 login_stats.js_on_change('text', beep_call)
 
+
+beep_button.js_on_event(ButtonClick, CustomJS(args={'spinner': spinner},code='beep_sound(spinner.value);'))
 # row1 = row([column([name, mobno, date]),column([pincodes, vaccines, doseno]), column([fees, group, refids]), column([button, start, stop])])
 # row2 = row([column([otp, otp_submit]), column([capcha_input, capcha_submit]), capcha])
 # row3 = column([login_stats,pin,center_name,notifications, states, districts])
 # l = column([row1, row2, row3], css_classes=["middle"])
 
-row1 = row([column([name, mobno, date, otp, row([capcha, capcha_input], width=310)]),column([states, districts, pincodes, otp_submit, capcha_submit]), column([fees, group, refids, vaccines, doseno]), column([button, start, stop, mode])])
+row1 = row([column([name, mobno, date, otp, row([capcha, capcha_input], width=310)]),column([states, districts, pincodes, otp_submit, capcha_submit]), column([fees, group, refids, vaccines, doseno]), column([button, start, stop, mode, row([spinner, beep_button], width=310)])])
 # row2 = row([Div(text="\200b"),capcha, capcha_input, capcha_submit])
 
 row3 = column([row([Div(text="Background Thread Status:"), thread_stat]),
