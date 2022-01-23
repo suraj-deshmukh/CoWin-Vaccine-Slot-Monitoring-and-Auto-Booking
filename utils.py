@@ -170,7 +170,7 @@ def book_slot(book, capcha=None):
     if capcha:
         book["captcha"] = capcha
     book = json.dumps(book)
-    resp = session.post("https://cdn-api.co-vin.in/api/v2/appointment/schedule", data=book)
+    resp = session.post("https://cdn-api.co-vin.in/api/v4/appointment/schedule", data=book)
     if resp.status_code == 200:
         print("Scheduled Successfully.")
         print(f"response: {resp.json()}")
@@ -200,20 +200,25 @@ def book_slot(book, capcha=None):
 #             }
 
 def filter(sessions, pincodes, age_group, fees, vaccine, dose, refids):
-    allow_all_age = False
+    # allow_all_age = False
     if sessions['sessions']:
         df = pd.DataFrame(sessions['sessions'])
         print(age_group)
-        if age_group == "18+":
-            age_group = "18"
-            allow_all_age = True
-        query = f"pincode == {pincodes} and min_age_limit == {age_group} and vaccine == {vaccine} and available_capacity_dose{dose} >= {len(refids)}"
+        # if age_group == "18+":
+        #     age_group = "18"
+        #     allow_all_age = True
+        age_group = "18" if age_group == "18" else "15"
+        query = f"pincode == {pincodes} and min_age_limit == {age_group} and vaccine == {vaccine}"
         if fees != 'Any':
             query = query + f" and fee_type == '{fees}'"
-        if allow_all_age:
-            query = query + f" and allow_all_age == True"
+        if dose == 'precaution dose':
+            query = query + f" and available_capacity > available_capacity_dose1 + available_capacity_dose2"
         else:
-            query = query + f" and allow_all_age == False"
+            query = query + f" and available_capacity_dose{dose} >= {len(refids)}"
+        # if allow_all_age:
+        #     query = query + f" and allow_all_age == True"
+        # else:
+        #     query = query + f" and allow_all_age == False"
         df_sliced = df.query(query)
         print(f"sessions: {len(df_sliced)} at {dt.datetime.now()}\tfinished filtering: {dt.datetime.now()}", end="\r")
         for index, (_, row) in enumerate(df_sliced.iterrows()):
@@ -223,5 +228,6 @@ def filter(sessions, pincodes, age_group, fees, vaccine, dose, refids):
                 "session_id": row['session_id'],
                 "beneficiaries": refids,
                 "slot": row['slots'][0],
-                "dose": dose
+                "dose": 1 if dose == 'precaution dose' else dose,
+                "is_precaution": True if dose == 'precaution dose' else False
             },{'name': row['name'], 'session': json.loads(row.to_json()), 'pin': row['pincode']}]    
