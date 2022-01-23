@@ -42,7 +42,7 @@ Other apps/scripts expects you to feed otp every 15 minutes or something which i
 
 * Docker: Click here to install <a href="https://docs.docker.com/engine/install/">Docker</a>
 
-If you don't want to use Docker then you will need python 3.5+ installed on your system and then clone this repository using into `cowin-app` folder using `git clone https://github.com/suraj-deshmukh/CoWin-Vaccine-Slot-Monitoring-and-Auto-Booking.git cowin-app` and install prequisites using `pip install -r cowin-app/requirements.txt`
+If you don't want to use Docker then you will need python 3.5+ installed on your system and then clone this repository into `cowin-app` folder using `git clone https://github.com/suraj-deshmukh/CoWin-Vaccine-Slot-Monitoring-and-Auto-Booking.git cowin-app` and install prequisites using `pip install -r cowin-app/requirements.txt`
 
 ## Prior Gmail Settings and SMS Forwarder App Configuration for Auto Mode(Not required for Manual Mode)
 
