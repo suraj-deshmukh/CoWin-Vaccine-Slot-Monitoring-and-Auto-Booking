@@ -1,6 +1,7 @@
-bokeh==2.3.1
+bokeh==3.8.2
 requests==2.23.0
 beautifulsoup4==4.8.1
 pandas==1.0.3
 IMAPClient==2.2.0
 dateparser==1.0.0
+urllib3>=2.6.3 # not directly required, pinned by Snyk to avoid a vulnerability
